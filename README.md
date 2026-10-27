@@ -1,56 +1,30 @@
-# Interview HRD (Next.js + TypeScript)
+# YRI HRD — Candidate Interview & Scoring Dashboard
 
-Konversi dari versi Laravel `InterviewHRD` ke **Next.js 15 + TypeScript + Postgres**, siap deploy ke **Vercel**.
-Tema ungu bergaya gamifikasi, ramah HP (navigasi bawah, slider, kartu kandidat), export Excel dan PDF.
+Sistem web untuk mendukung proses **pencatatan dan evaluasi wawancara kandidat Youth Ranger Indonesia**. Aplikasi ini menyatukan input kandidat, penilaian, daftar unggulan per divisi, dan ekspor laporan dalam satu dashboard.
 
-## ⚠️ Baca dulu: asumsi saat konversi
+## Masalah yang ingin diselesaikan
 
-File sumber asli (`config/hrd.php`, migrasi, controller, view) **tidak bisa dibaca** saat konversi. Aplikasi ini dibangun
-dari fitur yang tertulis di README Laravel. Hal-hal berikut adalah ASUMSI dan mudah diubah:
+Penilaian wawancara menjadi sulit dibandingkan saat catatan kandidat tersebar di berkas atau formulir berbeda. Tim HR memerlukan struktur nilai, ringkasan status kandidat, dan hasil yang bisa diunduh.
 
-| Asumsi | Ubah di |
-| --- | --- |
-| Kriteria penilaian: Komunikasi, Kepemimpinan, Komitmen, Motivasi, Kerja sama tim (slider 1-10, total 0-100) | `src/config/hrd.ts` → `SCORE_FIELDS` |
-| Kuota TOP: Secretary 5 dan Social Media Management 4 (dari README lama). Divisi lain hanyalah CONTOH | `src/config/hrd.ts` → `DIVISI_QUOTA` |
-| TOP dihitung per **regional + divisi**; skor sama → yang lebih dulu diinput menang | `src/lib/top.ts` |
-| Kolom `pewawancara` (opsional) dipakai untuk "Leaderboard HRD" | `src/lib/gamification.ts` |
-| Aturan XP/level/misi/badge dibuat ulang (rumus lama tidak terbaca) | `src/config/hrd.ts` (XP) dan `src/lib/gamification.ts` |
+## Fitur yang tersedia di kode
 
-Skor disimpan sebagai JSON, jadi mengganti kriteria **tidak perlu migrasi database**.
+- Form data kandidat dan **penilaian dengan lima aspek**: komunikasi, kepemimpinan, komitmen, motivasi, dan kerja sama tim.
+- **Dashboard kandidat** dan halaman untuk membuat, melihat, serta mengubah data penilaian.
+- **TOP kandidat per regional dan divisi** berdasarkan logika ranking aplikasi.
+- **Ekspor Excel dan PDF** melalui route API.
+- **Login** dan navigasi dashboard responsif.
+- Elemen gamifikasi penilaian HR, seperti XP, level, serta tampilan pencapaian.
 
-## Menjalankan di komputer
+## Teknologi
 
-```bash
-npm install
-cp .env.example .env.local      # lalu isi DATABASE_URL, HRD_PASSWORD, AUTH_SECRET
-npm run db:push                 # membuat tabel (atau tempel schema.sql di SQL Editor Neon/Supabase)
-npm run db:seed                 # opsional: data contoh
-npm run dev
-```
+**Next.js 15**, **React 19**, **TypeScript**, **PostgreSQL**, **Drizzle ORM**, **ExcelJS**, **jsPDF**, dan **Lucide React**.
 
-Database gratis: [Neon](https://neon.tech) atau [Supabase](https://supabase.com). Salin *connection string* ke `DATABASE_URL`.
+## Catatan implementasi
 
-## Deploy ke Vercel
+Repository ini merupakan **versi Next.js hasil konversi konsep dari aplikasi HRD sebelumnya**. Ketentuan penilaian dan sebagian kuota divisi pada `src/config/hrd.ts` bersifat **asumsi/contoh dari proses konversi**, bukan kebijakan resmi YRI. Lima kriteria pada versi ini juga berbeda dari versi PHP lama yang dapat digunakan pada operasional lain.
 
-1. Push folder ini ke repo GitHub, lalu *Import* di Vercel (preset Next.js terdeteksi otomatis).
-2. Isi **Environment Variables**: `DATABASE_URL`, `HRD_USERNAME`, `HRD_PASSWORD`, `AUTH_SECRET`.
-3. Deploy. Jika `HRD_PASSWORD` kosong di production, aplikasi sengaja menolak jalan (sama seperti versi Laravel).
+## Hasil
 
-## Peta Laravel → Next.js
+Prototipe sistem HR berbasis database dengan alur penilaian, ranking, dan pelaporan yang lebih terstruktur. Nilai kuota dan aturan perhitungan perlu divalidasi oleh pengelola sebelum aplikasi dipakai sebagai dasar keputusan seleksi nyata.
 
-| Laravel | Next.js |
-| --- | --- |
-| `DashboardController` + `dashboard.blade.php` | `src/app/(app)/page.tsx` + `components/DashboardView.tsx` |
-| `KandidatController` (cari & filter) | `src/app/(app)/kandidat/page.tsx` |
-| `PenilaianController@store/update/destroy` | `src/app/actions.ts` (`savePenilaian`, `deletePenilaianAction`) |
-| `PenilaianController@destroyRegional` | `deleteRegionalAction` di `actions.ts`, UI di `/export` |
-| `PenilaianController@top` | `src/app/(app)/top/page.tsx` |
-| `ExportController@excel` / `@pdf` | `src/app/api/export/excel` dan `/pdf` |
-| Login HR (`HRD_USERNAME/PASSWORD`) | `src/middleware.ts`, `src/lib/auth.ts`, `/login` |
-| `config/hrd.php` | `src/config/hrd.ts` |
-| Migrasi `penilaian` | `src/db/schema.ts` dan `schema.sql` |
-
-## Memindahkan data lama (MySQL → Postgres)
-
-Ekspor tabel `penilaian` lama ke CSV, lalu impor ke Postgres. Kolom lama yang berisi nilai per kriteria perlu
-digabung ke kolom `skor` (JSON) dan `total` (0-100). Jika bentuk tabel lama dikirim, skrip konversinya mudah dibuat.
+> Repo ini tidak boleh dianggap telah memverifikasi data kandidat, keamanan akun, atau keputusan rekrutmen produksi tanpa pengujian tambahan.
