@@ -3,13 +3,16 @@ import { FileSpreadsheet, FileText, Trash2 } from "lucide-react";
 import { deleteRegionalAction } from "@/app/actions";
 import ConfirmButton from "@/components/ConfirmButton";
 import { getAllRanked, regionalsOf } from "@/lib/queries";
+import { REGIONALS } from "@/config/hrd";
+import { getSelectedRegion } from "@/lib/region";
 
 export const metadata: Metadata = { title: "Export" };
 export const dynamic = "force-dynamic";
 
 export default async function ExportPage() {
   const rows = await getAllRanked();
-  const regionals = regionalsOf(rows);
+  const regionals = [...new Set([...REGIONALS, ...regionalsOf(rows)])];
+  const selectedRegion = await getSelectedRegion();
 
   return (
     <div className="stack">
@@ -21,7 +24,7 @@ export default async function ExportPage() {
         </p>
         <label className="field">
           <span>Regional</span>
-          <select name="regional" defaultValue="">
+          <select name="regional" defaultValue={selectedRegion}>
             <option value="">Semua regional</option>
             {regionals.map((r) => (
               <option key={r}>{r}</option>

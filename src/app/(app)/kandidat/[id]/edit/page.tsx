@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PenilaianForm from "@/components/PenilaianForm";
 import { REGIONALS } from "@/config/hrd";
-import { getAllRanked, regionalsOf } from "@/lib/queries";
+import { getAllRanked } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Ubah penilaian" };
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
   const all = await getAllRanked();
   const row = all.find((r) => r.id === Number(id));
   if (!row) notFound();
-  const regionals = [...new Set([...REGIONALS, ...regionalsOf(all)])];
+  const regionals = [...REGIONALS];
 
   return (
     <div className="stack">

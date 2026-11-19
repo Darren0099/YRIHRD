@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import CandidateCard from "@/components/CandidateCard";
 import Confetti from "@/components/Confetti";
-import { DIVISI_LIST } from "@/config/hrd";
+import { DIVISI_LIST, REGIONALS } from "@/config/hrd";
+import { getSelectedRegion, filterByRegion } from "@/lib/region";
 import { getAllRanked, regionalsOf } from "@/lib/queries";
 
 export const metadata: Metadata = { title: "Kandidat" };
@@ -13,7 +14,8 @@ type SP = { q?: string; regional?: string; divisi?: string; saved?: string; top?
 
 export default async function KandidatPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
-  const all = await getAllRanked();
+  const selectedRegion = await getSelectedRegion();
+  const all = filterByRegion(await getAllRanked(), selectedRegion);
   const q = (sp.q ?? "").trim().toLowerCase();
 
   const rows = all.filter(
@@ -23,7 +25,7 @@ export default async function KandidatPage({ searchParams }: { searchParams: Pro
       (!sp.divisi || r.divisi === sp.divisi),
   );
   const savedId = Number(sp.saved) || null;
-  const regionals = regionalsOf(all);
+  const regionals = [...new Set([...REGIONALS, ...regionalsOf(all)])];
   const divisis = [...new Set([...DIVISI_LIST, ...all.map((r) => r.divisi)])];
 
   return (
@@ -64,7 +66,7 @@ export default async function KandidatPage({ searchParams }: { searchParams: Pro
         <button className="btn btn--primary btn--sm">Terapkan</button>
       </form>
 
-      <p className="muted small">{rows.length} kandidat</p>
+      <p className="muted small">{rows.length} kandidat {selectedRegion ? `di ${selectedRegion}` : "di semua regional"}</p>
 
       {rows.length === 0 ? (
         <div className="empty card">

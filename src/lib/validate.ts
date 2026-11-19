@@ -1,4 +1,4 @@
-import { SCORE_FIELDS, SCORE_MAX } from "@/config/hrd";
+import { REGIONALS, SCORE_FIELDS, SCORE_MAX } from "@/config/hrd";
 
 export interface PenilaianInput {
   nama: string;
@@ -19,6 +19,7 @@ export function parsePenilaian(fd: FormData): { error: string } | { data: Penila
   const divisi = str(fd.get("divisi"));
   if (nama.length < 2) return { error: "Nama kandidat minimal 2 huruf." };
   if (!regional) return { error: "Regional wajib diisi." };
+  if (!(REGIONALS as readonly string[]).includes(regional)) return { error: "Pilih regional dari daftar yang tersedia." };
   if (!divisi) return { error: "Pilih divisi." };
 
   const skor: Record<string, number> = {};

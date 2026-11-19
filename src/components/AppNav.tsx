@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Download, LayoutDashboard, LogOut, Plus, Trophy, Users } from "lucide-react";
 import { logoutAction } from "@/app/actions";
+import { REGIONALS } from "@/config/hrd";
 
 const ITEMS = [
   { href: "/", label: "Beranda", Icon: LayoutDashboard },
@@ -12,8 +13,13 @@ const ITEMS = [
   { href: "/export", label: "Export", Icon: Download },
 ];
 
-export default function AppNav({ showLogout }: { showLogout: boolean }) {
+export default function AppNav({ showLogout, selectedRegion }: { showLogout: boolean; selectedRegion: string }) {
   const path = usePathname();
+  const router = useRouter();
+  const changeRegion = (region: string) => {
+    document.cookie = `yrihrd_region=${encodeURIComponent(region)}; Path=/; Max-Age=31536000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+    router.refresh();
+  };
   const active = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 
   return (
@@ -35,6 +41,13 @@ export default function AppNav({ showLogout }: { showLogout: boolean }) {
         </nav>
 
         <div className="topbar__right">
+          <label className="region-picker">
+            <span className="sr-only">Pilih regional untuk tampilan data</span>
+            <select aria-label="Regional aktif" value={selectedRegion} onChange={(e) => changeRegion(e.target.value)}>
+              <option value="">Semua regional</option>
+              {REGIONALS.map((region) => <option key={region} value={region}>{region}</option>)}
+            </select>
+          </label>
           <Link href="/kandidat/baru" className="btn btn--primary btn--sm">
             <Plus size={16} aria-hidden="true" /> Nilai kandidat
           </Link>

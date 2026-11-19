@@ -18,8 +18,8 @@ export const SCORE_FIELDS = [
 /** Skala slider: 1 sampai SCORE_MAX */
 export const SCORE_MAX = 10;
 
-/** Saran regional di form. Regional baru tetap bisa diketik bebas. */
-export const REGIONALS = ["Sumatera Selatan"];
+/** Regional resmi untuk seluruh proses seleksi. */
+export const REGIONALS = ["Sumatera Selatan", "Lampung", "Jambi", "Bangka Belitung", "Bengkulu"] as const;
 
 /** Divisi dan kuota TOP per regional. */
 export const DIVISI_QUOTA: Record<string, number> = {

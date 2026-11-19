@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import PenilaianForm from "@/components/PenilaianForm";
 import { REGIONALS } from "@/config/hrd";
-import { getAllRanked, regionalsOf } from "@/lib/queries";
+import { getSelectedRegion } from "@/lib/region";
 
 export const metadata: Metadata = { title: "Nilai kandidat" };
 export const dynamic = "force-dynamic";
 
 export default async function BaruPage() {
-  const all = await getAllRanked().catch(() => []);
-  const regionals = [...new Set([...REGIONALS, ...regionalsOf(all)])];
+  const selectedRegion = await getSelectedRegion();
   return (
     <div className="stack">
       <h1 className="h1">Nilai kandidat</h1>
-      <PenilaianForm regionals={regionals} />
+      <PenilaianForm regionals={[...REGIONALS]} selectedRegion={selectedRegion} />
     </div>
   );
 }

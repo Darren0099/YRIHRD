@@ -25,7 +25,7 @@ function Submit({ edit }: { edit: boolean }) {
   );
 }
 
-export default function PenilaianForm({ initial, regionals }: { initial?: Initial; regionals: string[] }) {
+export default function PenilaianForm({ initial, regionals, selectedRegion = "" }: { initial?: Initial; regionals: string[]; selectedRegion?: string }) {
   const [state, action] = useActionState<FormState, FormData>(savePenilaian, { error: null });
   const [skor, setSkor] = useState<Record<string, number>>(() =>
     Object.fromEntries(SCORE_FIELDS.map((f) => [f.key, initial?.skor?.[f.key] ?? Math.ceil(SCORE_MAX / 2)])),
@@ -45,12 +45,10 @@ export default function PenilaianForm({ initial, regionals }: { initial?: Initia
 
         <label className="field">
           <span>Regional</span>
-          <input name="regional" list="regional-list" defaultValue={initial?.regional} required maxLength={100} placeholder="Mis. Sumatera Selatan" />
-          <datalist id="regional-list">
-            {regionals.map((r) => (
-              <option key={r} value={r} />
-            ))}
-          </datalist>
+          <select name="regional" defaultValue={initial?.regional ?? selectedRegion} required>
+            <option value="" disabled>Pilih regional</option>
+            {regionals.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
         </label>
 
         <label className="field">
